@@ -209,46 +209,45 @@ class RAGSystem:
         
         embeddings = []
         texts_to_embed = []
+        indices_to_embed = []
         cached_count = 0
         
         # Check cache first
-        for chunk in self.chunks:
+        for idx, chunk in enumerate(self.chunks):
             cached_embedding = self.embedding_cache.get(chunk.chunked_plot)
             if cached_embedding:
                 embeddings.append(cached_embedding)
                 cached_count += 1
             else:
                 texts_to_embed.append(chunk.chunked_plot)
-                embeddings.append(None)  # Placeholder
-        
+                indices_to_embed.append(idx)
+                embeddings.append(None)  # Keep a placeholder at the original index
+
         logger.info(f"Using {cached_count} cached embeddings")
         
         # Generate new embeddings in batches
         if texts_to_embed:
-            for i in range(0, len(texts_to_embed), batch_size):
-                batch = texts_to_embed[i:i + batch_size]
-                
+            total = len(texts_to_embed)
+            for batch_start in range(0, total, batch_size):
+                batch = texts_to_embed[batch_start:batch_start + batch_size]
+
                 try:
                     response = self.client.embeddings.create(
                         input=batch,
                         model=self.embedding_model
                     )
-                    
+
                     batch_embeddings = [item.embedding for item in response.data]
-                    
-                    # Cache new embeddings
-                    for text, embedding in zip(batch, batch_embeddings):
+
+                    # Cache new embeddings and place them at their original indices
+                    for offset, embedding in enumerate(batch_embeddings):
+                        original_idx = indices_to_embed[batch_start + offset]
+                        text = texts_to_embed[batch_start + offset]
                         self.embedding_cache.set(text, embedding)
-                    
-                    # Fill in placeholders
-                    embed_idx = 0
-                    for j, emb in enumerate(embeddings):
-                        if emb is None and embed_idx < len(batch_embeddings):
-                            embeddings[j] = batch_embeddings[embed_idx]
-                            embed_idx += 1
-                    
+                        embeddings[original_idx] = embedding
+
                     logger.info(f"Embedded batch {i//batch_size + 1}/{(len(texts_to_embed)-1)//batch_size + 1}")
-                    
+
                 except Exception as e:
                     logger.error(f"Error generating embeddings: {e}")
                     raise
@@ -413,7 +412,7 @@ def main():
             logger.error(f"Failed to build vector embedding from {preproc_path}: {e}")
 
     # Interactive mode
-    print("Mini RAG for Movie Plots — interactive mode. Type 'End' or 'Quite' to exit.")
+    print("Mini RAG for Movie Plots — interactive mode. Type 'End' or 'Quit' to exit.")
     for _ in range(10**6):
         try:
             query = input("\nEnter your question: ")
@@ -422,7 +421,7 @@ def main():
             print("\nGoodbye.")
             break
 
-        if query.lower() in ("end", "quite"):
+        if query.lower() in ("end", "quit"):
             print("Goodbye.")
             break
 
