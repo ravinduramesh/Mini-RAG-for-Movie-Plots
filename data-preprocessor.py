@@ -5,7 +5,7 @@ import os
 import hashlib
 from typing import List
 
-from utils import get_logger
+from utils import get_logger, sanitize_text
 
 import pandas as pd
 import spacy
@@ -13,17 +13,12 @@ import spacy
 logger = get_logger()
 
 
-def sanitize_text(text: str) -> str:
-    text = " ".join(text.split())
-    return text.replace("\x00", "").strip()
-
-
 def generate_chunk_id(title: str, index: int) -> str:
     return hashlib.md5(f"{title}_{index}".encode("utf-8")).hexdigest()[:12]
 
 
 class SpacyTextChunkerSimple:
-    def __init__(self, chunk_size: int = 300, overlap: int = 50, model: str = "en_core_web_sm"):
+    def __init__(self, chunk_size: int = 250, overlap: int = 50, model: str = "en_core_web_sm"):
         self.chunk_size = chunk_size
         self.overlap = overlap
         try:
