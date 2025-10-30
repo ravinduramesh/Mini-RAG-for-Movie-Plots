@@ -90,7 +90,7 @@ def main():
     df = pd.read_csv("wiki_movie_plots_deduped.csv", encoding="utf-8", on_bad_lines="skip")
 
     df = df.dropna(subset=["Title", "Plot"]).copy()
-    df = df[df["Plot"].str.len() > 100]
+    df = df[df["Plot"].str.len() >= 100]
     df = df.head(500)  # Limit to first 500 movies for processing
 
     chunker = SpacyTextChunkerSimple()
