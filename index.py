@@ -246,7 +246,7 @@ class RAGSystem:
                         self.embedding_cache.set(text, embedding)
                         embeddings[original_idx] = embedding
 
-                    logger.info(f"Embedded batch {i//batch_size + 1}/{(len(texts_to_embed)-1)//batch_size + 1}")
+                    logger.info(f"Embedded batch {batch_start//batch_size + 1}/{(len(texts_to_embed)-1)//batch_size + 1}")
 
                 except Exception as e:
                     logger.error(f"Error generating embeddings: {e}")
