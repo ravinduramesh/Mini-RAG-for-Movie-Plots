@@ -5,7 +5,7 @@ lets you query movie plots using OpenAI embeddings + a local FAISS index.
 ## Overview
 This repository contains two main entry points:
 - `data-preprocessor.py` — reads the raw `wiki_movie_plots_deduped.csv`, filters and chunks plots (using spaCy) and writes `preprocessed_wiki_movies.csv`.
-- `index.py` — loads the preprocessed CSV, creates/loads embeddings through the	OpenAI API, builds a FAISS index, and starts an interactive query loop.
+- `index.py` — loads the preprocessed CSV, creates/loads embeddings through the OpenAI API, builds a FAISS index, and starts an interactive query loop.
 
 ## Prerequisites
 - Python 3.10+ recommended
