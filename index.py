@@ -290,12 +290,11 @@ class RAGSystem:
         query_vector = np.array([query_embedding]).astype('float32')
         distances, indices = self.index.search(query_vector, k)
         
-        # Guardrail: Validate results
         retrieved_chunks = []
         for idx, distance in zip(indices[0], distances[0]):
             if idx < len(self.chunks):
                 chunk = self.chunks[idx]
-                # Guardrail: Filter by relevance threshold
+                # Filter chunks by relevance threshold
                 if distance < 1.5:  # Reasonable threshold for L2 distance
                     retrieved_chunks.append(chunk)
         
