@@ -50,7 +50,7 @@ Purpose: load preprocessed chunks, generate embeddings using the OpenAI API,
 build a FAISS index, and let you ask questions interactively.
 
 1. Ensure `preprocessed_wiki_movies.csv` exists. If it does not, run the preprocessor as shown above.
-2. Create a `.env` file in the project root with your OpenAI key (refer to .env.sample`):
+2. Create a `.env` file in the project root with your OpenAI key (refer to `.env.sample`):
 ```text
 OPENAI_API_KEY=sk-xxxxxxx
 ```
