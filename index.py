@@ -268,12 +268,6 @@ class RAGSystem:
         logger.info(f"Index built with {self.index.ntotal} vectors")
     
     def retrieve(self, query: str, k: Optional[int] = None) -> List[ChunkMetadata]:
-        # Guardrail: Moderate user query
-        if self.enable_moderation and self.moderator:
-            is_safe, reason = self.moderator.is_safe(query, strict=True)
-            if not is_safe:
-                raise ValueError(f"Query rejected: {reason}")
-        
         k = k or self.top_k
         
         # Generate query embedding
@@ -358,7 +352,7 @@ class RAGSystem:
             
             result = json.loads(response.choices[0].message.content)
             
-            # Guardrail: Validate response structure
+            # Validate response structure
             answer = result.get("answer", "Unable to generate answer")
             reasoning = result.get("reasoning", "No reasoning provided")
             
@@ -383,6 +377,12 @@ class RAGSystem:
         logger.info(f"Processing query: {query}")
         
         try:
+            # Guardrail: Moderate user query
+            if self.enable_moderation and self.moderator:
+                is_safe, reason = self.moderator.is_safe(query, strict=True)
+                if not is_safe:
+                    raise ValueError(f"Query rejected: {reason}")
+            
             contexts = self.retrieve(query)  # Retrieve relevant chunks
             response = self.generate_answer(query, contexts)
             return asdict(response)
